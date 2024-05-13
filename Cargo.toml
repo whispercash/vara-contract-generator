@@ -1,0 +1,9 @@
+[package]
+name = "vara"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+handlebars = "5.1.2"
+serde_json = "1.0.117"
+structopt = "0.3.26"
