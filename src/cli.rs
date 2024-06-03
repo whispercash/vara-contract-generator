@@ -46,72 +46,120 @@ impl Cli {
         Self::create_toml_file(&name, &template);
         Self::create_lib_rs_file(&name, &template);
         Self::create_build_rs_file(&name, &template);
+        Self::create_tests_folder(&name, &template);
     }
 
     fn create_lib_rs_file(name: &str, template: &str) {
         // create main lib rs file
-        let src =  "src/templates/".to_owned() + template + "/lib.rs.hbs";
+        let src =  "src/templates/".to_owned() + template + "/src/lib.rs.hbs";
         let template_path = Path::new(&src);
-        let output_path = Path::new(&name).join("src/lib.rs");
-        let data = serde_json::json!({
-            "project_name": &name
-        });
-        let _ = Self::apply_template(&template_path, &output_path, &data);
+        let path_exists = Path::exists(&template_path);
+        if path_exists {
+            let output_path = Path::new(&name).join("src/lib.rs");
+            let data = serde_json::json!({
+                "project_name": &name
+            });
+            let _ = Self::apply_template(&template_path, &output_path, &data);
+        }
 
         // create state lib rs file
-        let src =  "src/templates/".to_owned() + template + "/state/lib.rs.hbs";
+        let src =  "src/templates/".to_owned() + template + "/state/src/lib.rs.hbs";
         let template_path = Path::new(&src);
-        let output_path = Path::new(&name).join("state/src/lib.rs");
-        let data = serde_json::json!({});
-        let _ = Self::apply_template(&template_path, &output_path, &data);
+        let path_exists = Path::exists(&template_path);
+        if path_exists {
+            let output_path = Path::new(&name).join("state/src/lib.rs");
+            let data = serde_json::json!({});
+            let _ = Self::apply_template(&template_path, &output_path, &data);
+        }
 
         // create io lib rs file
-        let src =  "src/templates/".to_owned() + template + "/io/lib.rs.hbs";
+        let src =  "src/templates/".to_owned() + template + "/io/src/lib.rs.hbs";
         let template_path = Path::new(&src);
-        let output_path = Path::new(&name).join("io/src/lib.rs");
-        let data = serde_json::json!({});
-        let _ = Self::apply_template(&template_path, &output_path, &data);
+        let path_exists = Path::exists(&template_path);
+        if path_exists {
+            let output_path = Path::new(&name).join("io/src/lib.rs");
+            let data = serde_json::json!({});
+            let _ = Self::apply_template(&template_path, &output_path, &data);
+        }
+    }
+
+    fn create_tests_folder(name: &str, template: &str) {
+        // create tests folder
+        let src =  "src/templates/".to_owned() + template + "/tests";
+        let template_dir_path = Path::new(&src);
+        let path_exists = Path::exists(&template_dir_path);
+
+        if path_exists {
+            let files: [&str; 4] = [
+                "tests/node_tests.rs",
+                "tests/tests.rs",
+                "tests/utils_node.rs",
+                "tests/utils.rs"
+            ];
+            for file_path in files {
+                let src =  "src/templates/".to_owned() + template + "/" + &file_path + ".hbs";
+                let template_path = Path::new(&src);
+                let output_path = Path::new(&name).join(file_path);
+                let data = serde_json::json!({});
+                let _ = Self::apply_template(&template_path, &output_path, &data);
+            }
+        }
     }
 
     fn create_build_rs_file(name: &str, template: &str) {
         // create main build rs file
         let src =  "src/templates/".to_owned() + template + "/build.rs.hbs";
         let template_path = Path::new(&src);
-        let output_path = Path::new(&name).join("build.rs");
-        let data = serde_json::json!({});
-        let _ = Self::apply_template(&template_path, &output_path, &data);
+        let path_exists = Path::exists(&template_path);
+        if path_exists {
+            let output_path = Path::new(&name).join("build.rs");
+            let data = serde_json::json!({});
+            let _ = Self::apply_template(&template_path, &output_path, &data);
+        }
 
         // create state build rs file
         let src =  "src/templates/".to_owned() + template + "/state/build.rs.hbs";
         let template_path = Path::new(&src);
-        let output_path = Path::new(&name).join("state/build.rs");
-        let data = serde_json::json!({});
-        let _ = Self::apply_template(&template_path, &output_path, &data);
+        let path_exists = Path::exists(&template_path);
+        if path_exists {
+            let output_path = Path::new(&name).join("state/build.rs");
+            let data = serde_json::json!({});
+            let _ = Self::apply_template(&template_path, &output_path, &data);
+        }
     }
 
     fn create_toml_file(name: &str, template: &str) {
         // create cargo main toml file
         let src =  "src/templates/".to_owned() + template + "/cargo.toml.hbs";
         let template_path = Path::new(&src);
-        let output_path = Path::new(&name).join("Cargo.toml");
-        let data = serde_json::json!({
-            "project_name": &name
-        });
-        let _ = Self::apply_template(&template_path, &output_path, &data);
+        let path_exists = Path::exists(&template_path);
+        if path_exists {
+            let output_path = Path::new(&name).join("Cargo.toml");
+            let data = serde_json::json!({
+                "project_name": &name
+            });
+            let _ = Self::apply_template(&template_path, &output_path, &data);
+        }
 
         // create state cargo main toml file
         let src =  "src/templates/".to_owned() + template + "/state/cargo.toml.hbs";
         let template_path = Path::new(&src);
-        let output_path = Path::new(&name).join("state/Cargo.toml");
-        let data = serde_json::json!({});
-        let _ = Self::apply_template(&template_path, &output_path, &data);
+        let path_exists = Path::exists(&template_path);
+        if path_exists {
+            let output_path = Path::new(&name).join("state/Cargo.toml");
+            let data = serde_json::json!({});
+            let _ = Self::apply_template(&template_path, &output_path, &data);
+        }
 
         // create cargo main toml file
         let src =  "src/templates/".to_owned() + template + "/io/cargo.toml.hbs";
         let template_path = Path::new(&src);
-        let output_path = Path::new(&name).join("io/Cargo.toml");
-        let data = serde_json::json!({});
-        let _ = Self::apply_template(&template_path, &output_path, &data);
+        let path_exists = Path::exists(&template_path);
+        if path_exists {
+            let output_path = Path::new(&name).join("io/Cargo.toml");
+            let data = serde_json::json!({});
+            let _ = Self::apply_template(&template_path, &output_path, &data);
+        }
     }
 
     fn apply_template(
