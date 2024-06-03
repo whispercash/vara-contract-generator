@@ -12,6 +12,9 @@ pub struct Cli {
 
     #[structopt(short = "d", long = "description", default_value = "a new vara project")]
     pub description: String,
+
+    #[structopt(short = "t", long = "template", default_value = "pingpong")]
+    pub template: String,
 }
 
 impl Cli {
@@ -23,9 +26,7 @@ impl Cli {
     pub fn create_structure(args: Cli) {
         let name = args.name;
         let description = args.description;
-
-        println!("Creating project: {}", name);
-        println!("Description: {}", description);
+        let template = args.template;
 
         // create the directories
         let base_path = Path::new(&name);
@@ -42,14 +43,15 @@ impl Cli {
         ).expect("Failed to create README.md");
 
         // create the necessary project files
-        Self::create_toml_file(&name);
-        Self::create_lib_rs_file(&name);
-        Self::create_build_rs_file(&name);
+        Self::create_toml_file(&name, &template);
+        Self::create_lib_rs_file(&name, &template);
+        Self::create_build_rs_file(&name, &template);
     }
 
-    fn create_lib_rs_file(name: &str) {
+    fn create_lib_rs_file(name: &str, template: &str) {
         // create main lib rs file
-        let template_path = Path::new("src/templates/lib.rs.hbs");
+        let src =  "src/templates/".to_owned() + template + "/lib.rs.hbs";
+        let template_path = Path::new(&src);
         let output_path = Path::new(&name).join("src/lib.rs");
         let data = serde_json::json!({
             "project_name": &name
@@ -57,35 +59,40 @@ impl Cli {
         let _ = Self::apply_template(&template_path, &output_path, &data);
 
         // create state lib rs file
-        let template_path = Path::new("src/templates/state/lib.rs.hbs");
+        let src =  "src/templates/".to_owned() + template + "/state/lib.rs.hbs";
+        let template_path = Path::new(&src);
         let output_path = Path::new(&name).join("state/src/lib.rs");
         let data = serde_json::json!({});
         let _ = Self::apply_template(&template_path, &output_path, &data);
 
         // create io lib rs file
-        let template_path = Path::new("src/templates/io/lib.rs.hbs");
+        let src =  "src/templates/".to_owned() + template + "/io/lib.rs.hbs";
+        let template_path = Path::new(&src);
         let output_path = Path::new(&name).join("io/src/lib.rs");
         let data = serde_json::json!({});
         let _ = Self::apply_template(&template_path, &output_path, &data);
     }
 
-    fn create_build_rs_file(name: &str) {
+    fn create_build_rs_file(name: &str, template: &str) {
         // create main build rs file
-        let template_path = Path::new("src/templates/build.rs.hbs");
+        let src =  "src/templates/".to_owned() + template + "/build.rs.hbs";
+        let template_path = Path::new(&src);
         let output_path = Path::new(&name).join("build.rs");
         let data = serde_json::json!({});
         let _ = Self::apply_template(&template_path, &output_path, &data);
 
         // create state build rs file
-        let template_path = Path::new("src/templates/state/build.rs.hbs");
+        let src =  "src/templates/".to_owned() + template + "/state/build.rs.hbs";
+        let template_path = Path::new(&src);
         let output_path = Path::new(&name).join("state/build.rs");
         let data = serde_json::json!({});
         let _ = Self::apply_template(&template_path, &output_path, &data);
     }
 
-    fn create_toml_file(name: &str) {
+    fn create_toml_file(name: &str, template: &str) {
         // create cargo main toml file
-        let template_path = Path::new("src/templates/Cargo.toml.hbs");
+        let src =  "src/templates/".to_owned() + template + "/cargo.toml.hbs";
+        let template_path = Path::new(&src);
         let output_path = Path::new(&name).join("Cargo.toml");
         let data = serde_json::json!({
             "project_name": &name
@@ -93,13 +100,15 @@ impl Cli {
         let _ = Self::apply_template(&template_path, &output_path, &data);
 
         // create state cargo main toml file
-        let template_path = Path::new("src/templates/state/Cargo.toml.hbs");
+        let src =  "src/templates/".to_owned() + template + "/state/cargo.toml.hbs";
+        let template_path = Path::new(&src);
         let output_path = Path::new(&name).join("state/Cargo.toml");
         let data = serde_json::json!({});
         let _ = Self::apply_template(&template_path, &output_path, &data);
 
         // create cargo main toml file
-        let template_path = Path::new("src/templates/io/Cargo.toml.hbs");
+        let src =  "src/templates/".to_owned() + template + "/io/cargo.toml.hbs";
+        let template_path = Path::new(&src);
         let output_path = Path::new(&name).join("io/Cargo.toml");
         let data = serde_json::json!({});
         let _ = Self::apply_template(&template_path, &output_path, &data);
@@ -114,6 +123,7 @@ impl Cli {
 
         // render the template
         let mut handlebars = Handlebars::new();
+
         handlebars.register_template_file(template_name, template_path).unwrap();
     
         let output = handlebars.render(template_name, &data).unwrap();
