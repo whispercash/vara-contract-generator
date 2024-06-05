@@ -1,25 +1,28 @@
 use std::fs;
 use std::path::Path;
-use structopt::StructOpt;
 use handlebars::Handlebars;
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "vara")]
-pub struct Cli {
-    // define the cli options
-    #[structopt(short = "n", long = "name")]
-    pub name: String,
+use clap::Parser;
 
-    #[structopt(short = "d", long = "description", default_value = "a new vara project")]
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+pub struct Cli {
+    /// Name of the project to create
+    #[arg(short, long)]
+    name: String,
+
+    /// Description of the project
+    #[arg(short, long, default_value_os = "a new vara project")]
     pub description: String,
 
-    #[structopt(short = "t", long = "template", default_value = "pingpong")]
+    /// Template to be used
+    #[arg(short, long, default_value_os = "pingpong")]
     pub template: String,
 }
 
 impl Cli {
     pub fn read_args() {
-        let args = Cli::from_args();
+        let args = Cli::parse();
         Self::create_structure(args);
     }
 

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-clap = "4.5.4"
+clap = { version = "4.5.4", features = ["derive"] }
 crossterm = "0.27.0"
 dialoguer = "0.11.0"
 handlebars = "5.1.2"
