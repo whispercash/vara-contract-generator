@@ -3,13 +3,18 @@ use std::path::Path;
 use handlebars::Handlebars;
 
 use clap::Parser;
+use dialoguer::{Input, Select, Confirm};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
     /// Name of the project to create
-    #[arg(short, long)]
+    #[arg(short, long, default_value_os = "test")]
     name: String,
+
+    /// Enable interactive mode
+    #[arg(short, long, default_value_os = "false")]
+    interactive: bool,
 
     /// Description of the project
     #[arg(short, long, default_value_os = "a new vara project")]
@@ -21,9 +26,57 @@ pub struct Cli {
 }
 
 impl Cli {
+    pub fn interactive_args() {
+        let name: String = Input::new()
+            .with_prompt("What's the name of your project?")
+            .default("test".into())
+            .interact_text()
+            .unwrap();
+
+        let description: String = Input::new()
+            .with_prompt("What's your project about?")
+            .default("an awesome project".into())
+            .interact_text()
+            .unwrap();
+
+        let options = vec!["pingpong", "nft"];
+        let template = Select::new()
+            .with_prompt("Choose a template")
+            .items(&options)
+            .default(0)
+            .interact()
+            .unwrap();
+
+        let args = Cli {
+            interactive: true,
+            name: name.to_string(),
+            description: description.to_string(),
+            template: options[template].to_string(),
+        };
+
+        // Ask for confirmation
+        let confirmed = Confirm::new()
+            .with_prompt("Do you want to proceed?")
+            .default(true)
+            .interact()
+            .unwrap();
+
+        if confirmed {
+            println!("Creating an {} project for you with the name {}", args.template, args.name);
+            Self::create_structure(args);
+        } else {
+            println!("Aborting...");
+        }
+        
+    }
+
     pub fn read_args() {
         let args = Cli::parse();
-        Self::create_structure(args);
+        if args.interactive {
+           Self::interactive_args(); 
+        } else {
+            Self::create_structure(args);
+        }
     }
 
     pub fn create_structure(args: Cli) {
