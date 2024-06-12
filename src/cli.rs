@@ -224,6 +224,10 @@ impl Cli {
         data: &serde_json::Value,
     ) -> std::io::Result<()> {
         let template_name = "template";
+        // let template_str = include_str!(template_path.as_os_str());
+        // let template_str = template_path.as_os_str().to_string_lossy().to_string();
+        // let tstr: &str = &*template_str;
+        // let template_str = include_str!(tstr);
 
         // render the template
         let mut handlebars = Handlebars::new();
