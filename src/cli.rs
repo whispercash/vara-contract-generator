@@ -1,6 +1,9 @@
 use std::fs;
 use std::path::Path;
 use handlebars::Handlebars;
+use fs_extra::dir::{CopyOptions, copy};
+use fs_extra::error::Result;
+
 
 use clap::Parser;
 use dialoguer::{Input, Select, Confirm};
@@ -90,7 +93,12 @@ impl Cli {
         // fs::create_dir_all(base_path.join("io")).expect("Failed to create io directory");
         fs::create_dir_all(base_path.join("io/src")).expect("Failed to create io/src directory");
         // fs::create_dir_all(base_path.join("state")).expect("Failed to create state directory");
-        fs::create_dir_all(base_path.join("state/src")).expect("Failed to create state/src directory");
+
+        let src =  "src/templates/".to_owned() + &template + "/state";
+        let state_dir = base_path.join(src);
+        if state_dir.exists() {
+            fs::create_dir_all(&state_dir).expect("Failed to create state/src directory");
+        }
 
         // Create a basic README
         fs::write(
@@ -99,10 +107,35 @@ impl Cli {
         ).expect("Failed to create README.md");
 
         // create the necessary project files
+        Self::add_common_libs(&name, &template).unwrap();
         Self::create_toml_file(&name, &template);
         Self::create_lib_rs_file(&name, &template);
         Self::create_build_rs_file(&name, &template);
         Self::create_tests_folder(&name, &template);
+    }
+
+    fn add_common_libs(name: &str, template: &str) -> Result<()> {
+        if template == "nft" {
+            let options = CopyOptions::new(); // Default options
+
+            let libs = vec![
+                "gear-lib",
+                "gear-lib-old"
+            ];
+
+            for lib in libs {
+                let src = Path::new("src/common").join(&lib);
+                let output_path = Path::new(name);
+                let path_exists = Path::exists(&output_path);
+                if !path_exists {
+                    fs::create_dir_all(&output_path).expect("Failed to create output directory");
+                }
+                println!("copying ....."); 
+                copy(&src, &output_path, &options)?;
+                println!("Copied {} from {:?} to {:?}", lib, src, output_path);
+            };
+        }
+        Ok(())
     }
 
     fn create_lib_rs_file(name: &str, template: &str) {
